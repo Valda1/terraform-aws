@@ -11,4 +11,14 @@ module "eks" {
     subnet_ids = module.vpc.private_subnets #Worker nodes subnets
     #subnet_ids = concat(module.vpc.public_subnets, module.vpc.private_subnets)
     control_plane_subnet_ids = module.vpc.private_subnets
+
+    #node_groups {
+    eks_managed_node_groups = {
+        default = {
+            min_size = 1
+            max_size = 3
+            desired_size = 2
+            instance_types = ["t2.micro"]
+        }
+    }
 }
