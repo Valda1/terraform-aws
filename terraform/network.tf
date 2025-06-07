@@ -57,3 +57,32 @@ module "alb" {
     }
   ]
 }
+
+module "ec2_asg" {
+  source = "terraform-aws-modules/autoscaling/aws"
+
+  name                      = "asg"
+  launch_template_name      = "web-lt"
+  vpc_zone_identifier       = module.vpc.public_subnets
+  target_group_arns         = [module.alb.target_group_arns[0]]
+  health_check_type         = "EC2"
+  min_size                  = 2
+  max_size                  = 4
+  desired_capacity          = 2
+
+  launch_template = {
+    name_prefix   = "web-"
+    image_id      = data.aws_ami.amazon_linux.id
+    instance_type = "t3.micro"
+    security_groups = [aws_security_group.ec2_sg.id]
+    user_data = base64encode(<<-EOF
+              #!/bin/bash
+              sudo yum update -y
+              sudo yum install -y nginx
+              sudo systemctl start nginx
+              sudo systemctl enable nginx
+              echo "Hello from $(hostname)" > /usr/share/nginx/html/index.html
+              EOF
+    )
+  }
+}
