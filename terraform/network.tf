@@ -29,4 +29,31 @@ module "alb" {
   vpc_id = module.vpc.vpc_id
   subnets = module.vpc.public_subnets
   security_groups = [aws_security_group.alb_sg.id]
+
+  enable_http = true
+
+  http_tcp_listeners = [
+    {
+      port               = 80
+      protocol           = "HTTP"
+      target_group_index = 0
+    }
+  ]
+
+  target_groups = [
+    {
+      name_prefix      = "app"
+      backend_protocol = "HTTP"
+      backend_port     = 80
+      target_type      = "instance"
+      health_check = {
+        path                = "/"
+        matcher             = "200"
+        interval            = 30
+        timeout             = 5
+        healthy_threshold   = 2
+        unhealthy_threshold = 2
+      }
+    }
+  ]
 }
