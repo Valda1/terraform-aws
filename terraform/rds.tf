@@ -26,4 +26,26 @@ module "rds" {
     deletion_protection    = false
 }
 
+module "rds_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
 
+  name        = "rds-sg"
+  description = "Allow PostgreSQL access from EC2"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress_with_source_security_group_id = [
+    {
+      from_port                = 5432
+      to_port                  = 5432
+      protocol                 = "tcp"
+      source_security_group_id = module.ec2_sg.security_group_id
+      description              = "Allow EC2 access to RDS"
+    }
+  ]
+
+  egress_rules = ["all-all"]
+
+  tags = {
+    Name = "rds-sg"
+  }
+}
