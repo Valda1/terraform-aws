@@ -12,7 +12,8 @@ module "eks" {
     #subnet_ids = concat(module.vpc.public_subnets, module.vpc.private_subnets)
     control_plane_subnet_ids = module.vpc.private_subnets
 
-    #node_groups {
+    #AWS managed node group
+    #Use node_group for self-managed node group
     eks_managed_node_groups = {
         default = {
             min_size = 1
